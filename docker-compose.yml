@@ -1,11 +1,60 @@
 version: '3.8'
+
+# Development service
 services:
-  nest-fastify:
+  app-dev:
+    container_name: api-bots-discord-dev
     build:
       context: .
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
-    volumes:
+    volumes: 
       - .:/app
       - /app/node_modules
-    command: npm run start:dev
+    depends_on:
+      - db  
+    profiles:
+      - dev    
+
+# Production service
+  app-prod:
+    container_name: api-bots-discord-prod
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8080:3000"
+    depends_on:
+      - db  
+    profiles:
+      - prod
+
+# Database service (PostgreSQL)
+  db:
+    image: postgres:17-alpine
+    container_name: api-bots-discord-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: api-bots-discord
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+# pgAdmin service
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: api-bots-discord-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: postgres@example.com
+      PGADMIN_DEFAULT_PASSWORD: postgres
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+# Volumes definition
+volumes:
+  pgdata:
