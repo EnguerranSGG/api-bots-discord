@@ -23,12 +23,44 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    ports:
-      - "9015:9015"
+    expose:
+      - "9015"
     environment:
       - PORT=9015
     depends_on:
       - db  
+    networks:
+      - app-network
+    profiles:
+      - prod
+
+  # Nginx service
+  nginx:
+    image: nginx:alpine
+    container_name: api-bots-discord-nginx
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_PORT=80
+      - NGINX_PROXY_PASS=http://app-prod:9015
+    command: /bin/sh -c "nginx -g 'daemon off;' & \
+             echo 'server { \
+             listen ${NGINX_PORT}; \
+             location / { \
+                 proxy_pass ${NGINX_PROXY_PASS}; \
+                 proxy_http_version 1.1; \
+                 proxy_set_header Upgrade $$http_upgrade; \
+                 proxy_set_header Connection \"upgrade\"; \
+                 proxy_set_header Host $$host; \
+                 proxy_cache_bypass $$http_upgrade; \
+             } \
+             }' > /etc/nginx/conf.d/default.conf && \
+             nginx -s reload && \
+             wait"
+    depends_on:
+      - app-prod
+    networks:
+      - app-network
     profiles:
       - prod
 
@@ -44,6 +76,8 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
 
 # pgAdmin service
   pgadmin:
@@ -56,7 +90,14 @@ services:
       - "5050:80"
     depends_on:
       - db
+    networks:
+      - app-network
 
 # Volumes definition
 volumes:
   pgdata:
+
+# Networks definition
+networks:
+  app-network:
+    driver: bridge
