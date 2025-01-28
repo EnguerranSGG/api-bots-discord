@@ -37,7 +37,8 @@ jobs:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.RSA_VPS_PRIVATE_KEY }}
-          source: "./"
+          port: ${{ secrets.VPS_PORT }}
+          source: "./build/"
           target: "./api-bots-discord"
           strip_components: 0
 
@@ -47,6 +48,7 @@ jobs:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.RSA_VPS_PRIVATE_KEY }}
+          port: ${{ secrets.VPS_PORT }}
           script: | 
             cd "./api-bots-discord"
             docker-compose down
