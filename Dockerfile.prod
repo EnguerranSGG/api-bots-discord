@@ -27,8 +27,11 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY package*.json ./
 
+# Set environment variable for the port
+ENV PORT=9015
+
 # Expose port
-EXPOSE 3000
+EXPOSE 9015
 
 # Start the application
 CMD ["npm", "run", "start:prod"]

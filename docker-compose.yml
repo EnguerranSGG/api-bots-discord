@@ -24,7 +24,9 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     ports:
-      - "8080:3000"
+      - "9015:9015"
+    environment:
+      - PORT=9015
     depends_on:
       - db  
     profiles:
