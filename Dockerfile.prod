@@ -1,5 +1,5 @@
-# Use a lightweight Node.js image compatible with multi-architecture
-FROM --platform=$BUILDPLATFORM node:22-alpine as build
+# Use a lightweight Node.js image
+FROM node:22-alpine as build
 
 # Set working directory
 WORKDIR /app
@@ -16,8 +16,8 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Use a lightweight Node.js image compatible with multi-architecture
-FROM --platform=$BUILDPLATFORM node:22-alpine as production
+# Use a lightweight Node.js image
+FROM node:22-alpine as production
 
 # Set working directory
 WORKDIR /app
