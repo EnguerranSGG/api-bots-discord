@@ -1,0 +1,56 @@
+name: ProductionDeployer pipeline
+
+on: 
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Copy files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.RSA_VPS_PRIVATE_KEY }}
+          source: "./"
+          target: "./api-bots-discord"
+          strip_components: 0
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.2.0
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.RSA_VPS_PRIVATE_KEY }}
+          script: | 
+            cd "./api-bots-discord"
+            docker-compose down
+            docker-compose pull
+            docker-compose up --build
+            docker image prune -f
+            docker ps
