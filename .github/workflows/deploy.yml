@@ -42,7 +42,7 @@ jobs:
           strip_components: 0
 
       - name: Deploy to VPS
-        uses: appleboy/ssh-action@v0.2.0
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
