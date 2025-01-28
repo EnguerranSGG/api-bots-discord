@@ -39,7 +39,7 @@ services:
     image: nginx:alpine
     container_name: api-bots-discord-nginx
     ports:
-      - "80:80"
+      - "80:9015"
     environment:
       - NGINX_PORT=80
       - NGINX_PROXY_PASS=http://app-prod:9015
